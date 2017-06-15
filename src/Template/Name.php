@@ -75,18 +75,19 @@ class Name
     {
         $this->name = $name;
 
-        $parts = explode('::', $this->name);
+        $parts  = explode('/', $this->name);
+        $file   = array_pop($parts);
+        $folder = implode('/', $parts);
 
-        if (count($parts) === 1) {
-            $this->setFile($parts[0]);
-        } elseif (count($parts) === 2) {
-            $this->setFolder($parts[0]);
-            $this->setFile($parts[1]);
+        if (!empty($folder) && !$this->engine->getFolders()->exists($folder)) {
+            $this->engine->addFolder($folder, $folder);
+        }
+
+        if (empty($folder)) {
+            $this->setFile($file);
         } else {
-            throw new LogicException(
-                'The template name "' . $this->name . '" is not valid. ' .
-                'Do not use the folder namespace separator "::" more than once.'
-            );
+            $this->setFile($file);
+            $this->setFolder($folder);
         }
 
         return $this;
